@@ -1,6 +1,9 @@
 package indexer
 
 import (
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -8,6 +11,7 @@ import (
 	"github.com/unisat-wallet/libbrc20-indexer/constant"
 	"github.com/unisat-wallet/libbrc20-indexer/decimal"
 	"github.com/unisat-wallet/libbrc20-indexer/model"
+	"github.com/unisat-wallet/libbrc20-indexer/utils"
 )
 
 func (g *BRC20Indexer) ProcessDeploy(progress int, data *model.InscriptionBRC20Data, body *model.InscriptionBRC20Content) {
@@ -97,4 +101,16 @@ func (g *BRC20Indexer) ProcessDeploy(progress int, data *model.InscriptionBRC20D
 	g.TokenUsersBalanceData[uniqueLowerTicker] = tokenUsers
 
 	g.InscriptionsValidBRC20DataMap[data.CreateIdxKey] = &tinfo.InscriptionBRC20TickInfo
+
+	m1 := make(map[string]interface{})
+	m1["tick"] = uniqueLowerTicker
+	m1["op"] = "deploy"
+	m1["block_number"] = data.Height
+	m1["txid"] = hex.EncodeToString(utils.ReverseBytes([]byte(data.TxId)))
+	m1["to"] = hex.EncodeToString([]byte(data.PkScript))
+	if jsonStr, err := json.Marshal(m1); err != nil {
+		log.Panicln("json Marshal error")
+	} else {
+		fmt.Println(string(jsonStr))
+	}
 }

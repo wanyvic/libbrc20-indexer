@@ -64,6 +64,9 @@ func (g *BRC20Indexer) ProcessUpdateLatestBRC20(brc20Datas []*model.InscriptionB
 	g.initBRC20()
 
 	for idx, data := range brc20Datas {
+		if data.BlockTime == 0 {
+			break
+		}
 		progress := idx * 100 / totalDataCount
 
 		// is sending transfer

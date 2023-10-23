@@ -1,6 +1,9 @@
 package indexer
 
 import (
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 
@@ -126,6 +129,20 @@ func (g *BRC20Indexer) ProcessTransfer(progress int, data *model.InscriptionBRC2
 	toHistory := model.NewBRC20History(constant.BRC20_HISTORY_TYPE_N_RECEIVE, true, true, &transferInfo.InscriptionBRC20TickInfo, tokenBalance, data)
 	tokenBalance.History = append(tokenBalance.History, toHistory)
 	tokenBalance.HistoryReceive = append(tokenBalance.HistoryReceive, toHistory)
+
+	m1 := make(map[string]interface{})
+	m1["tick"] = uniqueLowerTicker
+	m1["op"] = "transfer"
+	m1["block_number"] = data.Height
+	m1["txid"] = hex.EncodeToString(utils.ReverseBytes([]byte(data.TxId)))
+	m1["from"] = hex.EncodeToString([]byte(data.CreateIdxKey))
+	m1["to"] = hex.EncodeToString([]byte(data.PkScript))
+	m1["amt"] = transferInfo.Amount
+	if jsonStr, err := json.Marshal(m1); err != nil {
+		log.Panicln("json Marshal error")
+	} else {
+		fmt.Println(string(jsonStr))
+	}
 }
 
 func (g *BRC20Indexer) ProcessInscribeTransfer(progress int, data *model.InscriptionBRC20Data, body *model.InscriptionBRC20Content) {
@@ -216,5 +233,18 @@ func (g *BRC20Indexer) ProcessInscribeTransfer(progress int, data *model.Inscrip
 		g.InscriptionsValidTransferMap[data.CreateIdxKey] = transferInfo
 
 		g.InscriptionsValidBRC20DataMap[data.CreateIdxKey] = &transferInfo.InscriptionBRC20TickInfo
+
+		m1 := make(map[string]interface{})
+		m1["tick"] = uniqueLowerTicker
+		m1["op"] = "inscribe-transfer"
+		m1["block_number"] = data.Height
+		m1["txid"] = hex.EncodeToString(utils.ReverseBytes([]byte(data.TxId)))
+		m1["owner"] = hex.EncodeToString([]byte(data.CreateIdxKey))
+		m1["amt"] = balanceTransfer
+		if jsonStr, err := json.Marshal(m1); err != nil {
+			log.Panicln("json Marshal error")
+		} else {
+			fmt.Println(string(jsonStr))
+		}
 	}
 }
