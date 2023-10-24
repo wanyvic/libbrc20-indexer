@@ -2,7 +2,6 @@ package indexer
 
 import (
 	"bytes"
-	"log"
 
 	"github.com/unisat-wallet/libbrc20-indexer/constant"
 	"github.com/unisat-wallet/libbrc20-indexer/model"
@@ -20,7 +19,7 @@ type BRC20Indexer struct {
 	InscriptionsInvalidTransferMap map[string]*model.InscriptionBRC20TickTransferInfo
 }
 
-func (g *BRC20Indexer) initBRC20() {
+func (g *BRC20Indexer) InitBRC20() {
 	// all ticker info
 	g.InscriptionsTickerInfoMap = make(map[string]*model.BRC20TokenInfo, 0)
 
@@ -59,9 +58,7 @@ func isJson(contentBody []byte) bool {
 func (g *BRC20Indexer) ProcessUpdateLatestBRC20(brc20Datas []*model.InscriptionBRC20Data) {
 	totalDataCount := len(brc20Datas)
 
-	log.Printf("ProcessUpdateLatestBRC20Swap update. total %d", len(brc20Datas))
-
-	g.initBRC20()
+	// log.Printf("ProcessUpdateLatestBRC20Swap update. total %d", len(brc20Datas))
 
 	for idx, data := range brc20Datas {
 		if data.BlockTime == 0 {
@@ -114,14 +111,14 @@ func (g *BRC20Indexer) ProcessUpdateLatestBRC20(brc20Datas []*model.InscriptionB
 		}
 	}
 
-	log.Printf("ProcessUpdateLatestBRC20Swap finish. ticker: %d, users: %d, tokens: %d, validInscription: %d, validTransfer: %d, invalidTransfer: %d",
-		len(g.InscriptionsTickerInfoMap),
-		len(g.UserTokensBalanceData),
-		len(g.TokenUsersBalanceData),
+	// log.Printf("ProcessUpdateLatestBRC20Swap finish. ticker: %d, users: %d, tokens: %d, validInscription: %d, validTransfer: %d, invalidTransfer: %d",
+	// 	len(g.InscriptionsTickerInfoMap),
+	// 	len(g.UserTokensBalanceData),
+	// 	len(g.TokenUsersBalanceData),
 
-		len(g.InscriptionsValidBRC20DataMap),
+	// 	len(g.InscriptionsValidBRC20DataMap),
 
-		len(g.InscriptionsValidTransferMap),
-		len(g.InscriptionsInvalidTransferMap),
-	)
+	// 	len(g.InscriptionsValidTransferMap),
+	// 	len(g.InscriptionsInvalidTransferMap),
+	// )
 }

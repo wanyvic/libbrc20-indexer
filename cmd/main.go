@@ -21,13 +21,12 @@ func init() {
 }
 
 func main() {
-	brc20Datas, err := loader.LoadBRC20InputData(inputfile)
+	g := &indexer.BRC20Indexer{}
+	g.InitBRC20()
+	_, err := loader.LoadBRC20InputData(inputfile, g)
 	if err != nil {
 		log.Fatalf("invalid input, %s", err)
 	}
-
-	g := &indexer.BRC20Indexer{}
-	g.ProcessUpdateLatestBRC20(brc20Datas)
 
 	loader.DumpTickerInfoMap(outputfile,
 		g.InscriptionsTickerInfoMap,

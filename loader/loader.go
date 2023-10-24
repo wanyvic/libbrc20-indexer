@@ -12,11 +12,12 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/unisat-wallet/libbrc20-indexer/constant"
+	"github.com/unisat-wallet/libbrc20-indexer/indexer"
 	"github.com/unisat-wallet/libbrc20-indexer/model"
 	"github.com/unisat-wallet/libbrc20-indexer/utils"
 )
 
-func LoadBRC20InputData(fname string) ([]*model.InscriptionBRC20Data, error) {
+func LoadBRC20InputData(fname string, g *indexer.BRC20Indexer) ([]*model.InscriptionBRC20Data, error) {
 	var contentMap map[string][]byte = make(map[string][]byte, 0)
 
 	file, err := os.Open(fname)
@@ -30,7 +31,8 @@ func LoadBRC20InputData(fname string) ([]*model.InscriptionBRC20Data, error) {
 	max := 4 * 1024 * 1024
 	buf := make([]byte, max)
 	scanner.Buffer(buf, max)
-
+	totalLen := 37018130
+	i := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		fields := strings.Split(line, " ")
@@ -118,11 +120,20 @@ func LoadBRC20InputData(fname string) ([]*model.InscriptionBRC20Data, error) {
 		data.BlockTime = uint32(blockTime)
 
 		brc20Datas = append(brc20Datas, &data)
+		i++
+		if i%100000 == 0 {
+			g.ProcessUpdateLatestBRC20(brc20Datas)
+			brc20Datas = make([]*model.InscriptionBRC20Data, 0)
+			log.Printf("progress: %.2f%% (%d/%d)\n", float64(i)*100/float64(totalLen), i, totalLen)
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+	g.ProcessUpdateLatestBRC20(brc20Datas)
+	brc20Datas = make([]*model.InscriptionBRC20Data, 0)
+	log.Printf("finish count: %d\n", totalLen)
 
 	return brc20Datas, nil
 }
